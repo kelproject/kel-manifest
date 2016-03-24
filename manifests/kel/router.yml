@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: router
+  namespace: kel-system
+  labels:
+    kelproject.com/name: router
+    kelproject.com/cluster-service: "true"
+spec:
+  type: NodePort
+  selector:
+    kelproject.com/name: router{% if cluster.config.get("router-ip") %}
+  externalIPs:
+    - "{{ cluster.config["router-ip"] }}"
+{% endif %}
+  ports:
+    - name: router-http
+      nodePort: 30556
+      port: 80
+      protocol: TCP
+      targetPort: 8000
+    - name: router-https
+      nodePort: 32361
+      port: 443
+      protocol: TCP
+      targetPort: 8443
+
+---
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: router-{{ version }}
+  namespace: kel-system
+  labels:
+    kelproject.com/name: router
+    version: {{ version }}
+spec:
+  replicas: {{ replicas }}
+  selector:
+    kelproject.com/name: router
+    version: {{ version }}
+  template:
+    metadata:
+      labels:
+        kelproject.com/name: router
+        version: {{ version }}
+    spec:
+      containers:
+        - name: router
+          image: {{ image }}
+          imagePullPolicy: IfNotPresent
+          args:
+              - start
+              - web
+          env:
+            - name: BUNDLE_URL
+              value: https://storage.googleapis.com/release.kelproject.com/bundles/router/router-{{ bundle }}.tgz
+          resources:
+            limits:
+              cpu: 100m
+              memory: 476Mi
+          ports:
+            - containerPort: 8000
+              name: router-http
+              protocol: TCP
+            - containerPort: 8443
+              name: router-https
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /etc/router
+              name: router-conf
+              readOnly: true
+      volumes:
+        - name: router-conf
+          secret:
+            secretName: router-conf
+      nodeSelector:
+        kelproject.com/node-kind: node-1x
+
+---
+
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: router-conf
+  namespace: kel-system
+data:
+  fallback-certificate-pem: "{{ pem("router-fallback", raw=True) }}"
+  fallback-key-pem: "{{ pem("router-fallback-key") }}"

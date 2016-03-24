@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: blobstore
+  namespace: kel-system
+  labels:
+    kelproject.com/name: blobstore
+    kelproject.com/cluster-service: "true"
+spec:
+  selector:
+    kelproject.com/name: blobstore
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8000
+
+---
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: blobstore-{{ version }}
+  namespace: kel-system
+  labels:
+    kelproject.com/name: blobstore
+    version: {{ version }}
+spec:
+  replicas: {{ replicas }}
+  selector:
+    kelproject.com/name: blobstore
+    version: {{ version }}
+  template:
+    metadata:
+      labels:
+        kelproject.com/name: blobstore
+        version: {{ version }}
+    spec:
+      containers:
+      - name: blobstore
+        image: {{ image }}
+        imagePullPolicy: IfNotPresent
+        args:
+          - start
+          - web
+        env:
+          - name: BUNDLE_URL
+            value: https://storage.googleapis.com/release.kelproject.com/bundles/blobstore/blobstore-{{ bundle }}.tgz
+          - name: PORT
+            value: "8000"
+        ports:
+          - containerPort: 8000
+            protocol: TCP
+        volumeMounts:
+          - mountPath: /mnt/data
+            name: blobstore-nfs
+      nodeSelector:
+        kelproject.com/node-kind: node-1x
+      volumes:
+        - name: blobstore-nfs
+          nfs:
+            path: /
+            server: 10.3.0.5

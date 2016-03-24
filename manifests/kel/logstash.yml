@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash
+  namespace: kel-system
+  labels:
+    kelproject.com/name: logstash
+    kelproject.com/cluster-service: "true"
+spec:
+  selector:
+    kelproject.com/name: logstash
+  ports:
+    - port: 5044
+      protocol: TCP
+
+---
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: logstash-{{ version }}
+  namespace: kel-system
+  labels:
+    kelproject.com/name: logstash
+    version: {{ version }}
+spec:
+  replicas: {{ replicas }}
+  selector:
+    kelproject.com/name: logstash
+  template:
+    metadata:
+      labels:
+        kelproject.com/name: logstash
+        version: {{ version }}
+    spec:
+      containers:
+        - name: logstash
+          image: {{ image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5044
+              protocol: TCP
+      nodeSelector:
+        kelproject.com/node-kind: node-1x

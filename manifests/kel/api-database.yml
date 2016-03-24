@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-database
+  namespace: kel-system
+  labels:
+    kelproject.com/name: api-database
+    kelproject.com/cluster-service: "true"
+spec:
+  selector:
+    kelproject.com/name: api-database
+  ports:
+    - port: 5432
+      protocol: TCP
+
+---
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: api-database-{{ version }}
+  namespace: kel-system
+  labels:
+    kelproject.com/name: api-database
+    version: {{ version }}
+spec:
+  replicas: {{ replicas }}
+  selector:
+    kelproject.com/name: api-database
+    version: {{ version }}
+  template:
+    metadata:
+      labels:
+        kelproject.com/name: api-database
+        version: {{ version }}
+    spec:
+      containers:
+        - name: postgresql
+          image: {{ image }}
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /var/lib/postgresql
+              name: api-database-persistent-storage
+            - mountPath: /var/run/secrets/kel/database
+              name: api-database-config
+      nodeSelector:
+        kelproject.com/node-kind: node-1x
+      volumes:
+        - name: api-database-persistent-storage
+          gcePersistentDisk:
+            fsType: ext4
+            pdName: {{ cluster.config["name"] }}-api-database
+        - name: api-database-config
+          secret:
+            secretName: api-database-config
+
+---
+
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: api-database-config
+  namespace: kel-system
+data:
+  user: {{ b64(cluster.config.api.database.username) }}
+  password: {{ b64(cluster.config.api.database.password) }}
+  name: {{ b64(cluster.config.api.database.name) }}

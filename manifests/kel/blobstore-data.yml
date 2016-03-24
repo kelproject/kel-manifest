@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: blobstore-data
+  namespace: kel-system
+  labels:
+    kelproject.com/name: blobstore-data
+    kelproject.com/cluster-service: "true"
+spec:
+  clusterIP: 10.3.0.5
+  ports:
+    - port: 2049
+      protocol: TCP
+  selector:
+    kelproject.com/name: blobstore-data
+
+---
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: blobstore-data-{{ version }}
+  namespace: kel-system
+  labels:
+    kelproject.com/name: blobstore-data
+    version: {{ version }}
+spec:
+  replicas: {{ replicas }}
+  selector:
+    kelproject.com/name: blobstore-data
+    version: {{ version }}
+  template:
+    metadata:
+      labels:
+        kelproject.com/name: blobstore-data
+        version: {{ version }}
+    spec:
+      containers:
+        - name: blobstore-data
+          image: {{ image }}
+          imagePullPolicy: IfNotPresent
+          args:
+            - /srv/data
+          ports:
+            - containerPort: 2049
+              protocol: TCP
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /srv/data
+              name: blobstore-data-persistent-storage
+      nodeSelector:
+        kelproject.com/node-kind: node-1x
+      volumes:
+        - gcePersistentDisk:
+            fsType: ext4
+            pdName: {{ cluster.config["name"] }}-blobstore-data
+          name: blobstore-data-persistent-storage
