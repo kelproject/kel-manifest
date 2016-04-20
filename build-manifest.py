@@ -1,7 +1,6 @@
 import base64
+import json
 import os
-
-import yaml
 
 
 def load_manifest(path):
@@ -74,7 +73,7 @@ def get_layers():
 
 
 def main():
-    print(yaml.dump({"layers": get_layers()}))
+    print(json.dumps({"layers": get_layers()}))
 
 
 if __name__ == "__main__":
