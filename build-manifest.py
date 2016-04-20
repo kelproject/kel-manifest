@@ -22,7 +22,7 @@ def get_layers():
             },
         },
         "kubernetes": {
-            "version": "v1.2.2_kel.0",
+            "version": "v1.2.2_kel.2",
             "images": {
                 "kube-dns": {
                     "etcd": "gcr.io/google_containers/etcd:2.0.9",
