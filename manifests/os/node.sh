@@ -60,10 +60,10 @@ EOF
 
 mkdir -p /opt/bin
 
-curl -s https://storage.googleapis.com/release.kelproject.com/binaries/kubernetes/kubelet-${K8S_VERSION} > /opt/bin/kubelet
+curl -s https://storage.googleapis.com/release.kelproject.com/binaries/kubernetes/${K8S_VERSION}/kubelet > /opt/bin/kubelet
 chmod +x /opt/bin/kubelet
 
-curl -s https://storage.googleapis.com/release.kelproject.com/binaries/kubernetes/kubectl-${K8S_VERSION} > /opt/bin/kubectl
+curl -s https://storage.googleapis.com/release.kelproject.com/binaries/kubernetes/${K8S_VERSION}/kubectl > /opt/bin/kubectl
 chmod +x /opt/bin/kubectl
 
 cat > /etc/systemd/system/kubelet.service <<EOF
@@ -101,7 +101,7 @@ spec:
   hostNetwork: true
   containers:
   - name: kube-proxy
-    image: quay.io/eldarion/hyperkube:${K8S_VERSION}
+    image: quay.io/kelproject/hyperkube:${K8S_VERSION}
     command:
     - /hyperkube
     - proxy

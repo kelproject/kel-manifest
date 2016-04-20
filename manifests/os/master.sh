@@ -74,7 +74,7 @@ Environment=DOCKER_OPTS='--log-level=warn'
 EOF
 
 mkdir -p /opt/bin
-curl -s https://storage.googleapis.com/release.kelproject.com/binaries/kubernetes/kubelet-${K8S_VERSION} > /opt/bin/kubelet
+curl -s https://storage.googleapis.com/release.kelproject.com/binaries/kubernetes/${K8S_VERSION}/kubelet > /opt/bin/kubelet
 chmod +x /opt/bin/kubelet
 
 cat > /etc/systemd/system/kubelet.service <<EOF
@@ -108,7 +108,7 @@ spec:
   hostNetwork: true
   containers:
   - name: kube-apiserver
-    image: quay.io/eldarion/hyperkube:${K8S_VERSION}
+    image: quay.io/kelproject/hyperkube:${K8S_VERSION}
     command:
     - /hyperkube
     - apiserver
@@ -161,7 +161,7 @@ spec:
   hostNetwork: true
   containers:
   - name: kube-proxy
-    image: quay.io/eldarion/hyperkube:${K8S_VERSION}
+    image: quay.io/kelproject/hyperkube:${K8S_VERSION}
     command:
     - /hyperkube
     - proxy
@@ -239,7 +239,7 @@ metadata:
 spec:
   containers:
   - name: kube-controller-manager
-    image: quay.io/eldarion/hyperkube:${K8S_VERSION}
+    image: quay.io/kelproject/hyperkube:${K8S_VERSION}
     command:
     - /hyperkube
     - controller-manager
@@ -282,7 +282,7 @@ spec:
   hostNetwork: true
   containers:
   - name: kube-scheduler
-    image: quay.io/eldarion/hyperkube:${K8S_VERSION}
+    image: quay.io/kelproject/hyperkube:${K8S_VERSION}
     command:
     - /hyperkube
     - scheduler
