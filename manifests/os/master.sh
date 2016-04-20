@@ -82,7 +82,7 @@ cat > /etc/systemd/system/kubelet.service <<EOF
 ExecStartPre=/bin/bash -c 'hostnamectl set-hostname $(hostname | cut -f1 -d.)'
 ExecStart=/opt/bin/kubelet \
   --api-servers=http://127.0.0.1:8080 \
-  --register-node=false \
+  --register-schedulable=false \
   --cloud-provider=gce \
   --allow-privileged=true \
   --config=/etc/kubernetes/manifests \
@@ -313,7 +313,7 @@ systemctl enable kubelet
 
 touch /var/lib/.bootstrapped
 
-until curl -XPOST -d'{"apiVersion":"v1","kind":"Namespace","metadata":{"name":"kube-system"}}' "http://127.0.0.1:8080/api/v1/namespaces"; do
+{% raw %}until curl -XPOST -d'{"apiVersion":"v1","kind":"Namespace","metadata":{"name":"kube-system"}}' "http://127.0.0.1:8080/api/v1/namespaces"; do
     echo "Waiting for kube-apiserver to create kube-system namespace..."
     sleep 3
-done
+done{% endraw %}
