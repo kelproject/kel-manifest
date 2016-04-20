@@ -13,8 +13,8 @@ def get_layers():
     return {
         "os": {
             "type": "coreos",
-            "channel": "beta",
-            "version": "899.10.0",
+            "channel": "stable",
+            "version": "899.15.0",
             "manifests": {
                 "etcd": load_manifest("os/etcd.sh"),
                 "master": load_manifest("os/master.sh"),
@@ -22,7 +22,7 @@ def get_layers():
             },
         },
         "kubernetes": {
-            "version": "v1.1.8_kel.0",
+            "version": "v1.2.2_kel.0",
             "images": {
                 "kube-dns": {
                     "etcd": "gcr.io/google_containers/etcd:2.0.9",
