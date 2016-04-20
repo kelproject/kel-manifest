@@ -313,7 +313,7 @@ systemctl enable kubelet
 
 touch /var/lib/.bootstrapped
 
-{% raw %}until curl -XPOST -d'{"apiVersion":"v1","kind":"Namespace","metadata":{"name":"kube-system"}}' "http://127.0.0.1:8080/api/v1/namespaces"; do
+{% raw %}until curl -XPOST -H "Content-Type: application/json" -d'{"apiVersion":"v1","kind":"Namespace","metadata":{"name":"kube-system"}}' "http://127.0.0.1:8080/api/v1/namespaces"; do
     echo "Waiting for kube-apiserver to create kube-system namespace..."
     sleep 3
 done{% endraw %}
