@@ -36,9 +36,9 @@ def get_layers():
         },
         "kel": {
             "bundles": {
-                "api": "git-ce6fa670",
+                "api": "git-6c67cf56",
                 "blobstore": "git-dec5e2b1",
-                "router": "git-717bba4c",
+                "router": "git-6eaebc57",
             },
             "images": {
                 "bundle-builder": "quay.io/kelproject/bundle-builder",
