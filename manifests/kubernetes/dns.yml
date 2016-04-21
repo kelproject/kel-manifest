@@ -24,7 +24,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: kube-dns-v9
+  name: kube-dns
   namespace: kube-system
   labels:
     k8s-app: kube-dns

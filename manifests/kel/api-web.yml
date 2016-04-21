@@ -21,7 +21,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: api-web-{{ version }}
+  name: api-web
   namespace: kel-system
   labels:
     kelproject.com/name: api-web

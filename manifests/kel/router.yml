@@ -30,7 +30,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: router-{{ version }}
+  name: router
   namespace: kel-system
   labels:
     kelproject.com/name: router
