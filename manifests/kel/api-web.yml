@@ -28,9 +28,6 @@ metadata:
     version: {{ version }}
 spec:
   replicas: {{ replicas }}
-  selector:
-    kelproject.com/name: api-web
-    version: {{ version }}
   template:
     metadata:
       labels:

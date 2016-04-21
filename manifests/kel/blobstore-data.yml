@@ -26,9 +26,6 @@ metadata:
     version: {{ version }}
 spec:
   replicas: {{ replicas }}
-  selector:
-    kelproject.com/name: blobstore-data
-    version: {{ version }}
   template:
     metadata:
       labels:

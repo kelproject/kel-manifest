@@ -25,9 +25,6 @@ metadata:
     version: {{ version }}
 spec:
   replicas: {{ replicas }}
-  selector:
-    kelproject.com/name: api-cache
-    version: {{ version }}
   template:
     metadata:
       labels:
