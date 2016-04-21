@@ -32,15 +32,11 @@ metadata:
     kubernetes.io/cluster-service: "true"
 spec:
   replicas: 1
-  selector:
-    k8s-app: kube-dns
-    version: v9
   template:
     metadata:
       labels:
         k8s-app: kube-dns
         version: v9
-        kubernetes.io/cluster-service: "true"
     spec:
       containers:
         - name: etcd
