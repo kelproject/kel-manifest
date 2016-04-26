@@ -2,6 +2,8 @@ import base64
 import json
 import os
 
+import requests
+
 
 def load_manifest(path):
     here = os.path.abspath(os.path.dirname(__file__))
@@ -9,7 +11,7 @@ def load_manifest(path):
         return base64.b64encode(fp.read()).decode("utf-8")
 
 
-def get_layers():
+def get_release():
     return {
         "os": {
             "type": "coreos",
@@ -73,7 +75,21 @@ def get_layers():
 
 
 def main():
-    print(json.dumps({"layers": get_layers()}))
+    with open("manifest.json", "w") as fp:
+        fp.write(json.dumps(get_release()))
+    with open("channels.json", "w") as fp:
+        r = requests.get("https://storage.googleapis.com/release.kelproject.com/distro/channels.json")
+        if r.ok:
+            channels = json.loads(r.content.decode("utf-8"))
+        else:
+            channels = {"stable": None, "beta": None, "dev": None}
+        git_tag = os.environ.get("TRAVIS_TAG", "")
+        if git_tag:
+            version, channel = git_tag.split("-")
+            channels[channel] = version
+        else:
+            channels["dev"] = os.environ["BUILD_TAG"]
+        fp.write(json.dumps(channels))
 
 
 if __name__ == "__main__":
