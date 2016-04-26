@@ -15,10 +15,10 @@ gcloud() {
     (docker images google/cloud-sdk || docker pull google/cloud-sdk) > /dev/null;docker run -t -i --net=host -v /root/.config:/.config -v /var/run/docker.sock:/var/run/docker.sock google/cloud-sdk gcloud $@
 }
 
-K8S_VERSION="{{ cluster.config.layers.kubernetes.version }}"
+K8S_VERSION="{{ cluster.config.release.kubernetes.version }}"
 ETCD_INITIAL_ENDPOINTS="{{ cluster.resources.etcd.get_initial_endpoints()|join(",") }}"
-MASTER_IP="{{ cluster.config["master-ip"] }}"
-DNS_SERVICE_IP="{{ cluster.config["dns-service-ip"] }}"
+MASTER_IP="{{ cluster.master_ip }}"
+DNS_SERVICE_IP="{{ cluster.config["layer-0"]["dns-service-ip"] }}"
 CA_CERT="{{ pem("ca") }}"
 WORKER_KEY="{{ pem("worker-key") }}"
 WORKER_CERT="{{ pem("worker") }}"

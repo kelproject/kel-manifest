@@ -7,7 +7,7 @@ metadata:
     kelproject.com/cluster-service: "true"
     kelproject.com/name: api-web
   annotations:
-    router: '{"config": {}, "hosts": ["{{ cluster.config.api.host }}"]}'
+    router: '{"config": {}, "hosts": ["{{ cluster.config["layer-1"].api.host }}"]}'
 spec:
   selector:
     kelproject.com/name: api-web
@@ -80,14 +80,10 @@ metadata:
   namespace: kel-system
 data:
   cluster-name: {{ b64(cluster.config.name) }}
-  cluster-api-host: {{ b64(cluster.config.api.host) }}
+  cluster-api-host: {{ b64(cluster.config["layer-1"].api.host) }}
   cluster-domain: {{ b64(cluster.config.domain) }}
-  gce-project-id: {{ b64(cluster.config.provider["project-id"]) }}
-  gce-zone: {{ b64(cluster.config.provider.zone) }}
-  database-url: {{ b64("postgresql://%s:%s@api-database.kel-system/%s"|format(cluster.config.api.database.username, cluster.config.api.database.password, cluster.config.api.database.name)) }}
+  database-url: {{ b64("postgresql://%s:%s@api-database.kel-system/%s"|format(cluster.config["layer-1"].api.database.username, cluster.config["layer-1"].api.database.password, cluster.config["layer-1"].api.database.name)) }}
   redis-url: {{ b64("redis://api-cache.kel-system/0") }}
-  identity-url: {{ b64(cluster.config["identity-url"]) }}{% if cluster.config.api.get("opbeat") %}
-  opbeat: {{ b64(cluster.config.api.opbeat) }}
-  client-version: {{ b64(cluster.config["client-version"]) }}
-  client-download-url: {{ b64(cluster.config["client-download-url"]) }}
+  identity-url: {{ b64(cluster.config["layer-1"]["identity-url"]) }}{% if cluster.config["layer-1"].api.get("opbeat") %}
+  opbeat: {{ b64(cluster.config["layer-1"].api.opbeat) }}
 {% endif %}

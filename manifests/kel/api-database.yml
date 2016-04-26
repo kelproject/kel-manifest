@@ -60,6 +60,6 @@ metadata:
   name: api-database-config
   namespace: kel-system
 data:
-  user: {{ b64(cluster.config.api.database.username) }}
-  password: {{ b64(cluster.config.api.database.password) }}
-  name: {{ b64(cluster.config.api.database.name) }}
+  user: {{ b64(cluster.config["layer-1"].api.database.username) }}
+  password: {{ b64(cluster.config["layer-1"].api.database.password) }}
+  name: {{ b64(cluster.config["layer-1"].api.database.name) }}

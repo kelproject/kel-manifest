@@ -9,9 +9,9 @@ metadata:
 spec:
   type: NodePort
   selector:
-    kelproject.com/name: router{% if cluster.config.get("router-ip") %}
+    kelproject.com/name: router{% if cluster.router_ip %}
   externalIPs:
-    - "{{ cluster.config["router-ip"] }}"
+    - "{{ cluster.router_ip }}"
 {% endif %}
   ports:
     - name: router-http

@@ -11,11 +11,11 @@ curl-metadata() {
     curl --fail --silent -H "Metadata-Flavor: Google" "http://metadata/computeMetadata/v1/instance/attributes/${1}"
 }
 
-K8S_VERSION="{{ cluster.config.layers.kubernetes.version }}"
+K8S_VERSION="{{ cluster.config.release.kubernetes.version }}"
 ETCD_INITIAL_ENDPOINTS="{{ cluster.resources.etcd.get_initial_endpoints()|join(",") }}"
-POD_NETWORK="{{ cluster.config["pod-network"] }}"
-SERVICE_IP_RANGE="{{ cluster.config["service-network"] }}"
-DNS_SERVICE_IP="{{ cluster.config["dns-service-ip"] }}"
+POD_NETWORK="{{ cluster.config["layer-0"]["pod-network"] }}"
+SERVICE_IP_RANGE="{{ cluster.config["layer-0"]["service-network"] }}"
+DNS_SERVICE_IP="{{ cluster.config["layer-0"]["dns-service-ip"] }}"
 CA_KEY="{{ pem("ca-key") }}"
 CA_CERT="{{ pem("ca") }}"
 APISERVER_KEY="{{ pem("apiserver-key") }}"
@@ -44,7 +44,7 @@ DNS.2 = kubernetes.default
 DNS.3 = kubernetes.default.svc
 DNS.4 = $(curl -s -H Metadata-Flavor:Google http://metadata.google.internal./computeMetadata/v1/instance/hostname | cut -f1 -d.)
 IP.1 = 10.3.0.1
-IP.2 = {{ cluster.config["master-ip"] }}
+IP.2 = {{ cluster.master_ip }}
 EOF
 openssl req -new -key /etc/kubernetes/ssl/apiserver-key.pem -out /tmp/apiserver.csr -subj "/CN=kube-apiserver" -config /tmp/openssl.cnf
 openssl x509 -req -in /tmp/apiserver.csr -CA /etc/kubernetes/ssl/ca.pem -CAkey /etc/kubernetes/ssl/ca-key.pem -CAcreateserial -out /etc/kubernetes/ssl/apiserver.pem -days 365 -extensions v3_req -extfile /tmp/openssl.cnf
