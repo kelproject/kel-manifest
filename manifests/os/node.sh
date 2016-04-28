@@ -53,9 +53,9 @@ cat > /etc/systemd/system/docker.service.d/40-flannel.conf <<EOF
 Requires=flanneld.service
 After=flanneld.service
 EOF
-cat > /etc/systemd/system/docker.service.d/50-log-level.conf <<EOF
+cat > /etc/systemd/system/docker.service.d/50-custom-opts.conf <<EOF
 [Service]
-Environment=DOCKER_OPTS='--log-level=warn'
+Environment=DOCKER_OPTS='--log-level=warn --log-driver=journald'
 EOF
 
 mkdir -p /opt/bin
