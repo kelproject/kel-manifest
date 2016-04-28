@@ -83,4 +83,3 @@ data:
   database-url: {{ b64("postgresql://%s:%s@api-database.kel-system/%s"|format(cluster.config["layer-1"].api.database.username, cluster.config["layer-1"].api.database.password, cluster.config["layer-1"].api.database.name)) }}
   redis-url: {{ b64("redis://api-cache.kel-system/0") }}
   identity-url: {{ b64(cluster.config["layer-1"]["identity-url"]) }}
-{% endif %}
