@@ -44,13 +44,10 @@ def get_release():
             "images": {
                 "bundle-builder": "quay.io/kelproject/bundle-builder",
                 "bundle-runner": "quay.io/kelproject/bundle-runner",
-                "api-cache": "quay.io/kelproject/services:redis-3.0",
-                "api-database": "quay.io/kelproject/services:postgresql-9.4",
+                "api-cache": "redis:3.0",
+                "api-database": "postgres:9.5",
                 "api-web": "quay.io/kelproject/bundle-runner",
                 "api-worker": "quay.io/kelproject/bundle-runner",
-                "log-agent": "quay.io/kelproject/log-agent",
-                "logstash": "quay.io/kelproject/logstash",
-                "log-store": "quay.io/pires/docker-elasticsearch-kubernetes:2.2.0",
                 "router": "quay.io/kelproject/bundle-runner",
             },
             "manifests": {
@@ -61,9 +58,6 @@ def get_release():
                 "api-database": load_manifest("kel/api-database.yml"),
                 "api-web": load_manifest("kel/api-web.yml"),
                 "api-worker": load_manifest("kel/api-worker.yml"),
-                "log-agent": load_manifest("kel/log-agent.yml"),
-                "logstash": load_manifest("kel/logstash.yml"),
-                "log-store": load_manifest("kel/log-store.yml"),
             },
         },
     }

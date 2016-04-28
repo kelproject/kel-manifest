@@ -28,6 +28,8 @@ spec:
   selector:
     matchLabels:
       kelproject.com/name: api-cache
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -42,7 +44,7 @@ spec:
             - containerPort: 6379
               protocol: TCP
           volumeMounts:
-            - mountPath: /var/lib/redis
+            - mountPath: /data
               name: api-cache-persistent-storage
       nodeSelector:
         kelproject.com/node-kind: node-1x

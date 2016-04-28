@@ -28,6 +28,8 @@ spec:
   selector:
     matchLabels:
       kelproject.com/name: api-database
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -38,11 +40,25 @@ spec:
         - name: postgresql
           image: {{ image }}
           imagePullPolicy: IfNotPresent
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: api-database-config
+                  key: user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: api-database-config
+                  key: password
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: api-database-config
+                  key: name
           volumeMounts:
             - mountPath: /var/lib/postgresql
               name: api-database-persistent-storage
-            - mountPath: /var/run/secrets/kel/database
-              name: api-database-config
       nodeSelector:
         kelproject.com/node-kind: node-1x
       volumes:
@@ -50,9 +66,6 @@ spec:
           gcePersistentDisk:
             fsType: ext4
             pdName: {{ cluster.config["name"] }}-api-database
-        - name: api-database-config
-          secret:
-            secretName: api-database-config
 
 ---
 
