@@ -47,7 +47,6 @@ def get_release():
                 "api-cache": "redis:3.0",
                 "api-database": "postgres:9.5",
                 "api-web": "quay.io/kelproject/bundle-runner",
-                "api-worker": "quay.io/kelproject/bundle-runner",
                 "router": "quay.io/kelproject/bundle-runner",
             },
             "manifests": {
@@ -57,7 +56,6 @@ def get_release():
                 "api-cache": load_manifest("kel/api-cache.yml"),
                 "api-database": load_manifest("kel/api-database.yml"),
                 "api-web": load_manifest("kel/api-web.yml"),
-                "api-worker": load_manifest("kel/api-worker.yml"),
             },
         },
     }
