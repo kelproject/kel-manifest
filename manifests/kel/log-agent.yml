@@ -8,7 +8,8 @@ metadata:
     kelproject.com/cluster-service: "true"
 spec:
   selector:
-    kelproject.com/name: log-agent
+    matchLabels:
+      kelproject.com/name: log-agent
   template:
     metadata:
       name: log-agent

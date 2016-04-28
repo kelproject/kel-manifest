@@ -32,6 +32,9 @@ metadata:
     kubernetes.io/cluster-service: "true"
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: kube-dns
   template:
     metadata:
       labels:

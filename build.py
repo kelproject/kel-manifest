@@ -39,7 +39,6 @@ def get_release():
         "kel": {
             "bundles": {
                 "api": "git-6c67cf56",
-                "blobstore": "git-dec5e2b1",
                 "router": "git-6eaebc57",
             },
             "images": {
@@ -49,8 +48,6 @@ def get_release():
                 "api-database": "quay.io/kelproject/services:postgresql-9.4",
                 "api-web": "quay.io/kelproject/bundle-runner",
                 "api-worker": "quay.io/kelproject/bundle-runner",
-                "blobstore-data": "quay.io/kelproject/services:data-1.0",
-                "blobstore": "quay.io/kelproject/bundle-runner",
                 "log-agent": "quay.io/kelproject/log-agent",
                 "logstash": "quay.io/kelproject/logstash",
                 "log-store": "quay.io/pires/docker-elasticsearch-kubernetes:2.2.0",
@@ -60,8 +57,6 @@ def get_release():
                 "kel-system": load_manifest("kel/kel-system.yml"),
                 "kel-builds": load_manifest("kel/kel-builds.yml"),
                 "router": load_manifest("kel/router.yml"),
-                "blobstore-data": load_manifest("kel/blobstore-data.yml"),
-                "blobstore": load_manifest("kel/blobstore.yml"),
                 "api-cache": load_manifest("kel/api-cache.yml"),
                 "api-database": load_manifest("kel/api-database.yml"),
                 "api-web": load_manifest("kel/api-web.yml"),

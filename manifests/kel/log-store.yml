@@ -44,6 +44,9 @@ metadata:
     kelproject.com/cluster-service: "true"
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      kelproject.com/name: log-store
   template:
     metadata:
       labels:

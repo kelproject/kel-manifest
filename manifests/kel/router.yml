@@ -37,6 +37,9 @@ metadata:
     version: {{ version }}
 spec:
   replicas: {{ replicas }}
+  selector:
+    matchLabels:
+      kelproject.com/name: router
   template:
     metadata:
       labels:
