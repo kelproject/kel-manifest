@@ -27,8 +27,8 @@ def get_release():
             "version": "v1.2.2_kel.2",
             "images": {
                 "kube-dns": {
-                    "etcd": "gcr.io/google_containers/etcd:2.0.9",
-                    "kube2sky": "gcr.io/google_containers/kube2sky:1.11",
+                    "etcd": "gcr.io/google_containers/etcd-amd64:2.2.1",
+                    "kube2sky": "gcr.io/google_containers/kube2sky:1.14",
                     "skydns": "gcr.io/google_containers/skydns:2015-10-13-8c72f8c",
                 }
             },
