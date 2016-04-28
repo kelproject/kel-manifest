@@ -88,8 +88,7 @@ ExecStart=/opt/bin/kubelet \
   --config=/etc/kubernetes/manifests \
   --cluster-dns=${DNS_SERVICE_IP} \
   --cluster-domain=cluster.local \
-  --cadvisor-port=4194 \
-  --v=2
+  --cadvisor-port=4194
 Restart=always
 RestartSec=10
 [Install]
@@ -120,13 +119,12 @@ spec:
     - --insecure-bind-address=0.0.0.0
     - --insecure-port=8080
     - --advertise-address=${ADVERTISE_IP}
-    - --admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota
+    - --admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota
     - --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem
     - --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
     - --client-ca-file=/etc/kubernetes/ssl/ca.pem
     - --service-account-key-file=/etc/kubernetes/ssl/apiserver-key.pem
     - --cloud-provider=gce
-    - --v=2
     - --runtime-config=extensions/v1beta1/deployments=true,extensions/v1beta1/daemonsets=true,extensions/v1beta1/ingress=true
     ports:
     - containerPort: 443
@@ -166,7 +164,6 @@ spec:
     - /hyperkube
     - proxy
     - --master=http://127.0.0.1:8080
-    - --v=2
     securityContext:
       privileged: true
     volumeMounts:
@@ -179,58 +176,7 @@ spec:
     name: ssl-certs-host
 EOF
 
-mkdir -p /srv/kubernetes/manifests
-
-cat > /etc/kubernetes/manifests/kube-podmaster.yml <<EOF
-apiVersion: v1
-kind: Pod
-metadata:
-  name: kube-podmaster
-  namespace: kube-system
-spec:
-  hostNetwork: true
-  containers:
-  - name: scheduler-elector
-    image: gcr.io/google_containers/podmaster:1.1
-    command:
-    - /podmaster
-    - --etcd-servers=${ETCD_ENDPOINTS}
-    - --key=scheduler
-    - --whoami=${ADVERTISE_IP}
-    - --source-file=/src/manifests/kube-scheduler.yml
-    - --dest-file=/dst/manifests/kube-scheduler.yml
-    volumeMounts:
-    - mountPath: /src/manifests
-      name: manifest-src
-      readOnly: true
-    - mountPath: /dst/manifests
-      name: manifest-dst
-  - name: controller-manager-elector
-    image: gcr.io/google_containers/podmaster:1.1
-    command:
-    - /podmaster
-    - --etcd-servers=${ETCD_ENDPOINTS}
-    - --key=controller
-    - --whoami=${ADVERTISE_IP}
-    - --source-file=/src/manifests/kube-controller-manager.yml
-    - --dest-file=/dst/manifests/kube-controller-manager.yml
-    terminationMessagePath: /dev/termination-log
-    volumeMounts:
-    - mountPath: /src/manifests
-      name: manifest-src
-      readOnly: true
-    - mountPath: /dst/manifests
-      name: manifest-dst
-  volumes:
-  - hostPath:
-      path: /srv/kubernetes/manifests
-    name: manifest-src
-  - hostPath:
-      path: /etc/kubernetes/manifests
-    name: manifest-dst
-EOF
-
-cat > /srv/kubernetes/manifests/kube-controller-manager.yml <<EOF
+cat > /etc/kubernetes/manifests/kube-controller-manager.yml <<EOF
 apiVersion: v1
 kind: Pod
 metadata:
@@ -246,8 +192,8 @@ spec:
     - --master=http://127.0.0.1:8080
     - --service-account-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
     - --root-ca-file=/etc/kubernetes/ssl/ca.pem
+    - --leader-elect=true
     - --cloud-provider=gce
-    - --v=2
     livenessProbe:
       httpGet:
         host: 127.0.0.1
@@ -272,7 +218,7 @@ spec:
     name: ssl-certs-host
 EOF
 
-cat > /srv/kubernetes/manifests/kube-scheduler.yml <<EOF
+cat > /etc/kubernetes/manifests/kube-scheduler.yml <<EOF
 apiVersion: v1
 kind: Pod
 metadata:
@@ -287,7 +233,7 @@ spec:
     - /hyperkube
     - scheduler
     - --master=http://127.0.0.1:8080
-    - --v=2
+    - --leader-elect=true
     livenessProbe:
       httpGet:
         host: 127.0.0.1

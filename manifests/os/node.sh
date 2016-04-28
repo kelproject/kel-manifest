@@ -81,8 +81,7 @@ ExecStart=/opt/bin/kubelet \
   --tls-cert-file=/etc/kubernetes/ssl/worker.pem \
   --tls-private-key-file=/etc/kubernetes/ssl/worker-key.pem \
   --cadvisor-port=4194 \
-  --max-pods=${MAX_PODS} \
-  --v=2
+  --max-pods=${MAX_PODS}
 Restart=always
 RestartSec=10
 [Install]
@@ -107,7 +106,6 @@ spec:
     - proxy
     - --master=https://${MASTER_IP}
     - --kubeconfig=/etc/kubernetes/worker-kubeconfig.yml
-    - --v=2
     securityContext:
       privileged: true
     volumeMounts:
