@@ -57,6 +57,8 @@ spec:
             value: kel.api.settings_production
           - name: SECRET_KEY
             value: changeme
+          - name: KEL_LOG_LEVEL
+            value: INFO
           - name: KEL_IDENTITY_URL
             valueFrom:
               secretKeyRef:
