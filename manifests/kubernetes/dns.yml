@@ -28,7 +28,7 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: kube-dns
-    version: v9
+    version: v11
     kubernetes.io/cluster-service: "true"
 spec:
   replicas: 1
@@ -36,14 +36,21 @@ spec:
     metadata:
       labels:
         k8s-app: kube-dns
-        version: v9
+        version: v11
     spec:
       containers:
         - name: etcd
           image: {{ image.etcd }}
           imagePullPolicy: IfNotPresent
           resources:
+            # TODO: Set memory limits when we've profiled the container for large
+            # clusters, then set request = limit to keep this container in
+            # guaranteed class. Currently, this container falls into the
+            # "burstable" category so the kubelet doesn't backoff from restarting it.
             limits:
+              cpu: 100m
+              memory: 500Mi
+            requests:
               cpu: 100m
               memory: 50Mi
           command:
@@ -57,23 +64,56 @@ spec:
             - -initial-cluster-token
             - skydns-etcd
           volumeMounts:
-          - mountPath: /var/etcd/data
-            name: etcd-storage
+            - name: etcd-storage
+              mountPath: /var/etcd/data
         - name: kube2sky
           image: {{ image.kube2sky }}
           imagePullPolicy: IfNotPresent
           resources:
+            # TODO: Set memory limits when we've profiled the container for large
+            # clusters, then set request = limit to keep this container in
+            # guaranteed class. Currently, this container falls into the
+            # "burstable" category so the kubelet doesn't backoff from restarting it.
             limits:
               cpu: 100m
+              # Kube2sky watches all pods.
+              memory: 200Mi
+            requests:
+              cpu: 100m
               memory: 50Mi
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /readiness
+              port: 8081
+              scheme: HTTP
+            # we poll on pod startup for the Kubernetes master service and
+            # only setup the /readiness HTTP server once that's available.
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
           args:
             # command = "/kube2sky"
-            - -domain=cluster.local
+            - --domain=cluster.local
         - name: skydns
           image: {{ image.skydns }}
           imagePullPolicy: IfNotPresent
           resources:
+            # TODO: Set memory limits when we've profiled the container for large
+            # clusters, then set request = limit to keep this container in
+            # guaranteed class. Currently, this container falls into the
+            # "burstable" category so the kubelet doesn't backoff from restarting it.
             limits:
+              cpu: 100m
+              memory: 200Mi
+            requests:
               cpu: 100m
               memory: 50Mi
           args:
@@ -89,25 +129,15 @@ spec:
             - containerPort: 53
               name: dns-tcp
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 8080
-              scheme: HTTP
-            initialDelaySeconds: 30
-            timeoutSeconds: 5
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 8080
-              scheme: HTTP
-            initialDelaySeconds: 1
-            timeoutSeconds: 5
         - name: healthz
           image: gcr.io/google_containers/exechealthz:1.0
           imagePullPolicy: IfNotPresent
           resources:
+            # keep request = limit to keep this container in guaranteed class
             limits:
+              cpu: 10m
+              memory: 20Mi
+            requests:
               cpu: 10m
               memory: 20Mi
           args:
@@ -117,8 +147,8 @@ spec:
             - containerPort: 8080
               protocol: TCP
       dnsPolicy: Default
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 30
       volumes:
         - emptyDir: {}
           name: etcd-storage
+      nodeSelector:
+        kelproject.com/node-kind: node-1x
