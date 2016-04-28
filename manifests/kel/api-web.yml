@@ -55,23 +55,18 @@ spec:
             value: "8000"
           - name: DJANGO_SETTINGS_MODULE
             value: kel.api.settings_production
-          - name: KEL_ENV_SECRETS_PATH
-            value: /etc/api-env
-          - name: ETCD_ENDPOINTS
-            value: {{ cluster.get_etcd_endpoints()|join(",") }}
+          - name: SECRET_KEY
+            value: changeme
+          - name: KEL_IDENTITY_URL
+            valueFrom:
+              secretKeyRef:
+                name: api-web-env
+                key: identity-url
         ports:
           - containerPort: 8000
             protocol: TCP
-        volumeMounts:
-          - mountPath: /etc/api-env
-            name: api-env
-            readOnly: true
       nodeSelector:
         kelproject.com/node-kind: node-1x
-      volumes:
-        - name: api-env
-          secret:
-            secretName: api-web-env
 
 ---
 
@@ -87,6 +82,5 @@ data:
   cluster-domain: {{ b64(cluster.config.domain) }}
   database-url: {{ b64("postgresql://%s:%s@api-database.kel-system/%s"|format(cluster.config["layer-1"].api.database.username, cluster.config["layer-1"].api.database.password, cluster.config["layer-1"].api.database.name)) }}
   redis-url: {{ b64("redis://api-cache.kel-system/0") }}
-  identity-url: {{ b64(cluster.config["layer-1"]["identity-url"]) }}{% if cluster.config["layer-1"].api.get("opbeat") %}
-  opbeat: {{ b64(cluster.config["layer-1"].api.opbeat) }}
+  identity-url: {{ b64(cluster.config["layer-1"]["identity-url"]) }}
 {% endif %}

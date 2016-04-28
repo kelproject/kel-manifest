@@ -38,7 +38,7 @@ def get_release():
         },
         "kel": {
             "bundles": {
-                "api": "git-6c67cf56",
+                "api": "git-3f8df8ca",
                 "router": "git-6eaebc57",
             },
             "images": {
