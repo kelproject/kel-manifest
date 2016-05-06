@@ -55,10 +55,35 @@ spec:
             value: "8000"
           - name: DJANGO_SETTINGS_MODULE
             value: kel.api.settings_production
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: api-web-env
+                key: database-url
+          - name: REDIS_URL
+            valueFrom:
+              secretKeyRef:
+                name: api-web-env
+                key: redis-url
           - name: SECRET_KEY
             value: changeme
           - name: KEL_LOG_LEVEL
             value: INFO
+          - name: KEL_CLUSTER_NAME
+            valueFrom:
+              secretKeyRef:
+                name: api-web-env
+                key: cluster-name
+          - name: KEL_CLUSTER_API_HOST
+            valueFrom:
+              secretKeyRef:
+                name: api-web-env
+                key: cluster-api-host
+          - name: KEL_CLUSTER_DOMAIN
+            valueFrom:
+              secretKeyRef:
+                name: api-web-env
+                key: cluster-domain
           - name: KEL_IDENTITY_URL
             valueFrom:
               secretKeyRef:
