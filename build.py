@@ -69,13 +69,13 @@ def main():
         if r.ok:
             channels = json.loads(r.content.decode("utf-8"))
         else:
-            channels = {"stable": None, "beta": None, "dev": None}
+            channels = {"stable": None, "beta": None, "dev": {}}
         git_tag = os.environ.get("TRAVIS_TAG", "")
         if git_tag:
             version, channel = git_tag.split("-")
             channels[channel] = version
         else:
-            channels["dev"] = os.environ["BUILD_TAG"]
+            channels["dev"][os.environ["TRAVIS_BRANCH"]] = os.environ["BUILD_TAG"]
         fp.write(json.dumps(channels))
 
 
