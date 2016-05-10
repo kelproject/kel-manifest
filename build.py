@@ -24,7 +24,7 @@ def get_release():
             },
         },
         "kubernetes": {
-            "version": "v1.2.3_kel.0",
+            "version": "v1.2.4_kel.1",
             "images": {
                 "kube-dns": {
                     "etcd": "gcr.io/google_containers/etcd-amd64:2.2.1",
@@ -38,8 +38,8 @@ def get_release():
         },
         "kel": {
             "bundles": {
-                "api": "git-3f8df8ca",
-                "router": "git-6eaebc57",
+                "api": "git-6ab87870",
+                "router": "git-f9563af8",
             },
             "images": {
                 "bundle-builder": "quay.io/kelproject/bundle-builder",
