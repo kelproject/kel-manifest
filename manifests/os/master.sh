@@ -88,11 +88,28 @@ ExecStart=/opt/bin/kubelet \
   --config=/etc/kubernetes/manifests \
   --cluster-dns=${DNS_SERVICE_IP} \
   --cluster-domain=cluster.local \
+  --container-runtime=rkt \
   --cadvisor-port=4194
 Restart=always
 RestartSec=10
 [Install]
 WantedBy=multi-user.target
+EOF
+
+mkdir -p /etc/rkt/net.d
+cat > /etc/rkt/net.d/k8s_cluster.conf <<EOF
+{
+    "name": "rkt.kubernetes.io",
+    "type": "flannel"
+}
+EOF
+
+cat > /etc/systemd/system/rkt-api.service <<EOF
+[Service]
+Slice=machine.slice
+ExecStart=/usr/bin/rkt api-service
+KillMode=mixed
+Restart=always
 EOF
 
 mkdir -p /etc/kubernetes/manifests
@@ -254,7 +271,10 @@ until curl -X PUT -d "value={\"Network\":\"${POD_NETWORK}\", \"Backend\": {\"Typ
     ETCD_URL=${ETCD_URL_ARRAY[$RANDOM % ${#ETCD_URL_ARRAY[@]}]}
 done{% endraw %}
 
+systemctl start rkt-api
 systemctl start kubelet
+
+systemctl enable rkt-api
 systemctl enable kubelet
 
 touch /var/lib/.bootstrapped

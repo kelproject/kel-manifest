@@ -89,6 +89,14 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 
+cat > /etc/systemd/system/rkt-api.service <<EOF
+[Service]
+Slice=machine.slice
+ExecStart=/usr/bin/rkt api-service
+KillMode=mixed
+Restart=always
+EOF
+
 mkdir -p /etc/rkt/net.d
 cat > /etc/rkt/net.d/k8s_cluster.conf <<EOF
 {
@@ -160,7 +168,10 @@ EOF
 
 systemctl daemon-reload
 
+systemctl start rkt-api
 systemctl start kubelet
+
+systemctl enable rkt-api
 systemctl enable kubelet
 
 until /opt/bin/kubectl --server="https://${MASTER_IP}" --kubeconfig=/etc/kubernetes/worker-kubeconfig.yml label "node/$(hostname)" "kelproject.com/node-kind=${NODE_KIND}"; do
