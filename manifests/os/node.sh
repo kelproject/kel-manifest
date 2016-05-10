@@ -77,6 +77,7 @@ ExecStart=/opt/bin/kubelet \
   --config=/etc/kubernetes/manifests \
   --cluster-dns=${DNS_SERVICE_IP} \
   --cluster-domain=cluster.local \
+  --container-runtime=rkt \
   --kubeconfig=/etc/kubernetes/worker-kubeconfig.yml \
   --tls-cert-file=/etc/kubernetes/ssl/worker.pem \
   --tls-private-key-file=/etc/kubernetes/ssl/worker-key.pem \
@@ -86,6 +87,14 @@ Restart=always
 RestartSec=10
 [Install]
 WantedBy=multi-user.target
+EOF
+
+mkdir -p /etc/rkt/net.d
+cat > /etc/rkt/net.d/k8s_cluster.conf <<EOF
+{
+    "name": "rkt.kubernetes.io",
+    "type": "flannel"
+}
 EOF
 
 mkdir -p /etc/kubernetes/manifests
