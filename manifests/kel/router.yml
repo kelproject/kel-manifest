@@ -87,7 +87,7 @@ spec:
             - containerPort: 80
             - containerPort: 443
         - name: default-http-backend
-          image: gcr.io/google_containers/defaultbackend:1.0
+          image: quay.io/kelproject/default-http-backend:1.0_kel.1
           args:
             - -port=8081
           livenessProbe:
