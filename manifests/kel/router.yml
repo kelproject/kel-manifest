@@ -48,7 +48,7 @@ metadata:
   name: router-conf
   namespace: kel-system
 data:
-  body-size: 1m
+  body-size: 100m
   error-log-level: notice
   gzip-types: >
     application/atom+xml application/javascript application/json application/rss+xml
