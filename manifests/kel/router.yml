@@ -17,13 +17,66 @@ spec:
     - name: router-http
       nodePort: 30556
       port: 80
-      protocol: TCP
-      targetPort: 8000
+      targetPort: 80
     - name: router-https
       nodePort: 32361
       port: 443
-      protocol: TCP
-      targetPort: 8443
+      targetPort: 443
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: default-http-backend
+  namespace: kel-system
+  labels:
+    kelproject.com/name: default-http-backend
+    kelproject.com/cluster-service: "true"
+spec:
+  selector:
+    kelproject.com/name: router
+  ports:
+    - port: 80
+      targetPort: 8081
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: router-conf
+  namespace: kel-system
+data:
+  body-size: 100m
+  error-log-level: notice
+  gzip-types: >
+    application/atom+xml application/javascript application/json application/rss+xml
+    application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json
+    application/xhtml+xml application/xml font/opentype image/svg+xml image/x-icon
+    text/css text/plain text/x-component
+  hsts: "false"
+  hsts-include-subdomains: "false"
+  hsts-max-age: "15724800"
+  keep-alive: "75"
+  max-worker-connections: "16384"
+  proxy-connect-timeout: "5"
+  proxy-read-timeout: "60"
+  proxy-real-ip-cidr: 0.0.0.0/0
+  proxy-send-timeout: "60"
+  retry-non-idempotent: "false"
+  server-name-hash-bucket-size: "64"
+  server-name-hash-max-size: "512"
+  ssl-buffer-size: 4k
+  ssl-ciphers: ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA
+  ssl-protocols: TLSv1 TLSv1.1 TLSv1.2
+  ssl-session-cache: "true"
+  ssl-session-cache-size: 10m
+  ssl-session-tickets: "true"
+  ssl-session-timeout: 10m
+  use-gzip: "true"
+  vts-status-zone-size: 10m
+  worker-processes: "2"
 
 ---
 
@@ -47,47 +100,50 @@ spec:
         version: {{ version }}
     spec:
       containers:
-        - name: router
-          image: {{ image }}
-          imagePullPolicy: IfNotPresent
+        - name: nginx-ingress-lb
+          image: gcr.io/google_containers/nginx-ingress-controller:0.61
           args:
-            - bin/router
-            - -data-store=kubernetes
-            - -tls-cert=/etc/router/fallback-certificate-pem
-            - -tls-key=/etc/router/fallback-key-pem
+            - /nginx-ingress-controller
+            - --default-backend-service=kel-system/default-http-backend
+            - --nginx-configmap=kel-system/router-conf
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 10249
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
           env:
-            - name: BUNDLE_URL
-              value: https://storage.googleapis.com/release.kelproject.com/bundles/router/router-{{ bundle }}.tgz
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+        - name: default-http-backend
+          image: quay.io/kelproject/default-http-backend:1.0_kel.1
+          args:
+            - -port=8081
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          ports:
+            - containerPort: 8081
           resources:
             limits:
-              cpu: 100m
-              memory: 476Mi
-          ports:
-            - containerPort: 8000
-              name: router-http
-              protocol: TCP
-            - containerPort: 8443
-              name: router-https
-              protocol: TCP
-          volumeMounts:
-            - mountPath: /etc/router
-              name: router-conf
-              readOnly: true
-      volumes:
-        - name: router-conf
-          secret:
-            secretName: router-conf
+              cpu: 10m
+              memory: 20Mi
+            requests:
+              cpu: 10m
+              memory: 20Mi
       nodeSelector:
         kelproject.com/node-kind: node-1x
-
----
-
-apiVersion: v1
-kind: Secret
-type: Opaque
-metadata:
-  name: router-conf
-  namespace: kel-system
-data:
-  fallback-certificate-pem: "{{ pem("router-fallback", raw=True) }}"
-  fallback-key-pem: "{{ pem("router-fallback-key") }}"
