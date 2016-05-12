@@ -6,8 +6,6 @@ metadata:
   labels:
     kelproject.com/cluster-service: "true"
     kelproject.com/name: api-web
-  annotations:
-    router: '{"config": {}, "hosts": ["{{ cluster.config["layer-1"].api.host }}"]}'
 spec:
   selector:
     kelproject.com/name: api-web
@@ -119,3 +117,20 @@ data:
   database-url: {{ b64("postgresql://%s:%s@api-database.kel-system/%s"|format(cluster.config["layer-1"].api.database.username, cluster.config["layer-1"].api.database.password, cluster.config["layer-1"].api.database.name)) }}
   redis-url: {{ b64("redis://api-cache.kel-system/0") }}
   identity-url: {{ b64(cluster.config["layer-1"]["identity-url"]) }}
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: api-web
+  namespace: kel-system
+spec:
+  rules:
+    - host: {{ cluster.config["layer-1"].api.host }}
+      http:
+        paths:
+        - backend:
+            serviceName: api-web
+            servicePort: 80
+          path: /

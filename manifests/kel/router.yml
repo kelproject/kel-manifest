@@ -17,13 +17,28 @@ spec:
     - name: router-http
       nodePort: 30556
       port: 80
-      protocol: TCP
-      targetPort: 8000
+      targetPort: 80
     - name: router-https
       nodePort: 32361
       port: 443
-      protocol: TCP
-      targetPort: 8443
+      targetPort: 443
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: default-http-backend
+  namespace: kel-system
+  labels:
+    kelproject.com/name: default-http-backend
+    kelproject.com/cluster-service: "true"
+spec:
+  selector:
+    kelproject.com/name: router
+  ports:
+    - port: 80
+      targetPort: 8080
 
 ---
 
@@ -47,47 +62,47 @@ spec:
         version: {{ version }}
     spec:
       containers:
-        - name: router
-          image: {{ image }}
-          imagePullPolicy: IfNotPresent
+        - name: nginx-ingress-lb
+          image: gcr.io/google_containers/nginx-ingress-controller:0.61
           args:
-            - bin/router
-            - -data-store=kubernetes
-            - -tls-cert=/etc/router/fallback-certificate-pem
-            - -tls-key=/etc/router/fallback-key-pem
+            - /nginx-ingress-controller
+            - --default-backend-service=kel-system/default-http-backend
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 10249
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
           env:
-            - name: BUNDLE_URL
-              value: https://storage.googleapis.com/release.kelproject.com/bundles/router/router-{{ bundle }}.tgz
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+        - name: default-http-backend
+          image: gcr.io/google_containers/defaultbackend:1.0
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          ports:
+            - containerPort: 8080
           resources:
             limits:
-              cpu: 100m
-              memory: 476Mi
-          ports:
-            - containerPort: 8000
-              name: router-http
-              protocol: TCP
-            - containerPort: 8443
-              name: router-https
-              protocol: TCP
-          volumeMounts:
-            - mountPath: /etc/router
-              name: router-conf
-              readOnly: true
-      volumes:
-        - name: router-conf
-          secret:
-            secretName: router-conf
+              cpu: 10m
+              memory: 20Mi
+            requests:
+              cpu: 10m
+              memory: 20Mi
       nodeSelector:
         kelproject.com/node-kind: node-1x
-
----
-
-apiVersion: v1
-kind: Secret
-type: Opaque
-metadata:
-  name: router-conf
-  namespace: kel-system
-data:
-  fallback-certificate-pem: "{{ pem("router-fallback", raw=True) }}"
-  fallback-key-pem: "{{ pem("router-fallback-key") }}"

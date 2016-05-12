@@ -39,7 +39,6 @@ def get_release():
         "kel": {
             "bundles": {
                 "api": "git-6ab87870",
-                "router": "git-f9563af8",
             },
             "images": {
                 "bundle-builder": "quay.io/kelproject/bundle-builder",
@@ -47,7 +46,6 @@ def get_release():
                 "api-cache": "redis:3.0",
                 "api-database": "postgres:9.5",
                 "api-web": "quay.io/kelproject/bundle-runner",
-                "router": "quay.io/kelproject/bundle-runner",
             },
             "manifests": {
                 "kel-system": load_manifest("kel/kel-system.yml"),
