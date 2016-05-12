@@ -38,7 +38,7 @@ spec:
     kelproject.com/name: router
   ports:
     - port: 80
-      targetPort: 8080
+      targetPort: 8081
 
 ---
 
@@ -88,15 +88,17 @@ spec:
             - containerPort: 443
         - name: default-http-backend
           image: gcr.io/google_containers/defaultbackend:1.0
+          args:
+            - -port=8081
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 8080
+              port: 8081
               scheme: HTTP
             initialDelaySeconds: 30
             timeoutSeconds: 5
           ports:
-            - containerPort: 8080
+            - containerPort: 8081
           resources:
             limits:
               cpu: 10m
