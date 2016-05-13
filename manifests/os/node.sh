@@ -11,10 +11,6 @@ curl-metadata() {
     curl --fail --silent -H "Metadata-Flavor: Google" "http://metadata/computeMetadata/v1/instance/attributes/${1}"
 }
 
-gcloud() {
-    (docker images google/cloud-sdk || docker pull google/cloud-sdk) > /dev/null;docker run -t -i --net=host -v /root/.config:/.config -v /var/run/docker.sock:/var/run/docker.sock google/cloud-sdk gcloud $@
-}
-
 K8S_VERSION="{{ cluster.config.release.kubernetes.version }}"
 ETCD_INITIAL_ENDPOINTS="{{ cluster.resources.etcd.get_initial_endpoints()|join(",") }}"
 MASTER_IP="{{ cluster.master_ip }}"
