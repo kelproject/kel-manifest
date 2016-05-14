@@ -87,7 +87,7 @@ metadata:
   namespace: kel-system
 data:
   nginx.tmpl: |
-    {{ $cfg := .cfg }}
+    {% raw %}{{ $cfg := .cfg }}
     daemon off;
     worker_processes {{ $cfg.workerProcesses }};
     pid /run/nginx.pid;
@@ -370,7 +370,7 @@ data:
                     openURL(504)
                 }
             }
-    {{ end }}
+    {{ end }}{% endraw %}
 
 ---
 
