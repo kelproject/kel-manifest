@@ -16,6 +16,21 @@ spec:
 
 ---
 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-web-config
+  namespace: kel-system
+data:
+  cluster-name: "{{ cluster.config.name }}"
+  cluster-api-host: "{{ cluster.config["layer-1"].api.host }}"
+  cluster-domain: "{{ cluster.config.domain }}"
+  identity-url: "{{ cluster.config["layer-1"]["identity-url"] }}"
+  blobstore-backend: "{{ cluster.config["layer-1"]["blobstore-backend"] }}"
+  blobstore-bucket: "{{ cluster.config["layer-1"]["blobstore-bucket"] }}"
+
+---
+
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -56,12 +71,12 @@ spec:
           - name: DATABASE_URL
             valueFrom:
               secretKeyRef:
-                name: api-web-env
+                name: api-web-secrets
                 key: database-url
           - name: REDIS_URL
             valueFrom:
               secretKeyRef:
-                name: api-web-env
+                name: api-web-secrets
                 key: redis-url
           - name: SECRET_KEY
             value: changeme
@@ -69,24 +84,39 @@ spec:
             value: INFO
           - name: KEL_CLUSTER_NAME
             valueFrom:
-              secretKeyRef:
-                name: api-web-env
+              configMapKeyRef:
+                name: api-web-config
                 key: cluster-name
           - name: KEL_CLUSTER_API_HOST
             valueFrom:
-              secretKeyRef:
-                name: api-web-env
+              configMapKeyRef:
+                name: api-web-config
                 key: cluster-api-host
           - name: KEL_CLUSTER_DOMAIN
             valueFrom:
-              secretKeyRef:
-                name: api-web-env
+              configMapKeyRef:
+                name: api-web-config
                 key: cluster-domain
           - name: KEL_IDENTITY_URL
             valueFrom:
-              secretKeyRef:
-                name: api-web-env
+              configMapKeyRef:
+                name: api-web-config
                 key: identity-url
+          - name: KEL_BLOBSTORE_BACKEND
+            valueFrom:
+              configMapKeyRef:
+                name: api-web-config
+                key: blobstore-backend
+          - name: KEL_BLOBSTORE_BUCKET
+            valueFrom:
+              configMapKeyRef:
+                name: api-web-config
+                key: blobstore-bucket
+          - name: KEL_BLOBSTORE_SERVICE_ACCOUNT
+            valueFrom:
+              secretKeyRef:
+                name: api-web-secrets
+                key: blobstore-service-account
         ports:
           - containerPort: 8000
             protocol: TCP
@@ -108,15 +138,12 @@ apiVersion: v1
 kind: Secret
 type: Opaque
 metadata:
-  name: api-web-env
+  name: api-web-secrets
   namespace: kel-system
 data:
-  cluster-name: {{ b64(cluster.config.name) }}
-  cluster-api-host: {{ b64(cluster.config["layer-1"].api.host) }}
-  cluster-domain: {{ b64(cluster.config.domain) }}
   database-url: {{ b64("postgresql://%s:%s@api-database.kel-system/%s"|format(cluster.config["layer-1"].api.database.username, cluster.config["layer-1"].api.database.password, cluster.config["layer-1"].api.database.name)) }}
   redis-url: {{ b64("redis://api-cache.kel-system/0") }}
-  identity-url: {{ b64(cluster.config["layer-1"]["identity-url"]) }}
+  blobstore-service-account: {{ b64(cluster.config["layer-1"]["blobstore-service-account"]) }}
 
 ---
 
