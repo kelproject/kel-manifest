@@ -38,7 +38,7 @@ def get_release():
         },
         "kel": {
             "bundles": {
-                "api": "git-ad07e804",
+                "api": "git-4a062183",
             },
             "images": {
                 "bundle-builder": "quay.io/kelproject/bundle-builder",
