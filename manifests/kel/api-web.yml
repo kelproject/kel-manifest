@@ -4,13 +4,13 @@ metadata:
   name: api-web
   namespace: kel-system
   labels:
-    kelproject.com/cluster-service: "true"
-    kelproject.com/name: api-web
+    {{ cluster.config["managed-by"] }}/cluster-service: "true"
+    {{ cluster.config["managed-by"] }}/name: api-web
   annotations:
     router: '{"config": {}, "hosts": ["{{ cluster.config["layer-1"].api.host }}"]}'
 spec:
   selector:
-    kelproject.com/name: api-web
+    {{ cluster.config["managed-by"] }}/name: api-web
   ports:
     - port: 80
       protocol: TCP
@@ -24,17 +24,17 @@ metadata:
   name: api-web
   namespace: kel-system
   labels:
-    kelproject.com/name: api-web
+    {{ cluster.config["managed-by"] }}/name: api-web
     version: {{ version }}
 spec:
   replicas: {{ replicas }}
   selector:
     matchLabels:
-      kelproject.com/name: api-web
+      {{ cluster.config["managed-by"] }}/name: api-web
   template:
     metadata:
       labels:
-        kelproject.com/name: api-web
+        {{ cluster.config["managed-by"] }}/name: api-web
         version: {{ version }}
     spec:
       containers:
@@ -102,7 +102,7 @@ spec:
           initialDelaySeconds: 30
           timeoutSeconds: 1
       nodeSelector:
-        kelproject.com/node-kind: node-1x
+        {{ cluster.config["managed-by"] }}/node-kind: node-1x
 
 ---
 
