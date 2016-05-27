@@ -43,7 +43,7 @@ DNS.1 = kubernetes
 DNS.2 = kubernetes.default
 DNS.3 = kubernetes.default.svc
 DNS.4 = $(curl -s -H Metadata-Flavor:Google http://metadata.google.internal./computeMetadata/v1/instance/hostname | cut -f1 -d.)
-IP.1 = 10.3.0.1
+IP.1 = {{ cluster.config["layer-0"]["kubernetes-service-ip"] }}
 IP.2 = {{ cluster.master_ip }}
 EOF
 openssl req -new -key /etc/kubernetes/ssl/apiserver-key.pem -out /tmp/apiserver.csr -subj "/CN=kube-apiserver" -config /tmp/openssl.cnf

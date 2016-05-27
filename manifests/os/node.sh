@@ -150,7 +150,7 @@ systemctl daemon-reload
 systemctl start kubelet
 systemctl enable kubelet
 
-until /opt/bin/kubectl --server="https://${MASTER_IP}" --kubeconfig=/etc/kubernetes/worker-kubeconfig.yml label "node/$(hostname)" "kelproject.com/node-kind=${NODE_KIND}"; do
+until /opt/bin/kubectl --server="https://${MASTER_IP}" --kubeconfig=/etc/kubernetes/worker-kubeconfig.yml label "node/$(hostname)" "{{ cluster.config["managed-by"] }}/node-kind=${NODE_KIND}"; do
     echo "Waiting for kube-apiserver to label this node..."
     sleep 3
 done
