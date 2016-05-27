@@ -4,11 +4,11 @@ metadata:
   name: api-cache
   namespace: kel-system
   labels:
-    {{ cluster.config["managed-by"] }}/name: api-cache
-    {{ cluster.config["managed-by"] }}/cluster-service: "true"
+    kelproject.com/name: api-cache
+    kelproject.com/cluster-service: "true"
 spec:
   selector:
-    {{ cluster.config["managed-by"] }}/name: api-cache
+    kelproject.com/name: api-cache
   ports:
     - port: 6379
       protocol: TCP
@@ -21,19 +21,19 @@ metadata:
   name: api-cache
   namespace: kel-system
   labels:
-    {{ cluster.config["managed-by"] }}/name: api-cache
+    kelproject.com/name: api-cache
     version: {{ version }}
 spec:
   replicas: {{ replicas }}
   selector:
     matchLabels:
-      {{ cluster.config["managed-by"] }}/name: api-cache
+      kelproject.com/name: api-cache
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        {{ cluster.config["managed-by"] }}/name: api-cache
+        kelproject.com/name: api-cache
         version: {{ version }}
     spec:
       containers:
@@ -47,7 +47,7 @@ spec:
             - mountPath: /data
               name: api-cache-persistent-storage
       nodeSelector:
-        {{ cluster.config["managed-by"] }}/node-kind: node-1x
+        kelproject.com/node-kind: node-1x
       volumes:
         - name: api-cache-persistent-storage
           gcePersistentDisk:

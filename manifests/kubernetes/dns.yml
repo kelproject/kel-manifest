@@ -154,4 +154,4 @@ spec:
         - emptyDir: {}
           name: etcd-storage
       nodeSelector:
-        {{ cluster.config["managed-by"] }}/node-kind: node-1x
+        kelproject.com/node-kind: node-1x

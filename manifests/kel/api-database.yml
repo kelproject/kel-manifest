@@ -4,11 +4,11 @@ metadata:
   name: api-database
   namespace: kel-system
   labels:
-    {{ cluster.config["managed-by"] }}/name: api-database
-    {{ cluster.config["managed-by"] }}/cluster-service: "true"
+    kelproject.com/name: api-database
+    kelproject.com/cluster-service: "true"
 spec:
   selector:
-    {{ cluster.config["managed-by"] }}/name: api-database
+    kelproject.com/name: api-database
   ports:
     - port: 5432
       protocol: TCP
@@ -21,19 +21,19 @@ metadata:
   name: api-database
   namespace: kel-system
   labels:
-    {{ cluster.config["managed-by"] }}/name: api-database
+    kelproject.com/name: api-database
     version: {{ version }}
 spec:
   replicas: {{ replicas }}
   selector:
     matchLabels:
-      {{ cluster.config["managed-by"] }}/name: api-database
+      kelproject.com/name: api-database
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        {{ cluster.config["managed-by"] }}/name: api-database
+        kelproject.com/name: api-database
         version: {{ version }}
     spec:
       containers:
@@ -60,7 +60,7 @@ spec:
             - mountPath: /var/lib/postgresql
               name: api-database-persistent-storage
       nodeSelector:
-        {{ cluster.config["managed-by"] }}/node-kind: node-1x
+        kelproject.com/node-kind: node-1x
       volumes:
         - name: api-database-persistent-storage
           gcePersistentDisk:

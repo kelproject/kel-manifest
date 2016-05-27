@@ -4,12 +4,12 @@ metadata:
   name: router
   namespace: kel-system
   labels:
-    {{ cluster.config["managed-by"] }}/name: router
-    {{ cluster.config["managed-by"] }}/cluster-service: "true"
+    kelproject.com/name: router
+    kelproject.com/cluster-service: "true"
 spec:
   type: NodePort
   selector:
-    {{ cluster.config["managed-by"] }}/name: router{% if cluster.router_ip %}
+    kelproject.com/name: router{% if cluster.router_ip %}
   externalIPs:
     - "{{ cluster.router_ip }}"
 {% endif %}
@@ -33,17 +33,17 @@ metadata:
   name: router
   namespace: kel-system
   labels:
-    {{ cluster.config["managed-by"] }}/name: router
+    kelproject.com/name: router
     version: {{ version }}
 spec:
   replicas: {{ replicas }}
   selector:
     matchLabels:
-      {{ cluster.config["managed-by"] }}/name: router
+      kelproject.com/name: router
   template:
     metadata:
       labels:
-        {{ cluster.config["managed-by"] }}/name: router
+        kelproject.com/name: router
         version: {{ version }}
     spec:
       containers:
@@ -78,7 +78,7 @@ spec:
           secret:
             secretName: router-conf
       nodeSelector:
-        {{ cluster.config["managed-by"] }}/node-kind: node-1x
+        kelproject.com/node-kind: node-1x
 
 ---
 
