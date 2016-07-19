@@ -51,14 +51,6 @@ openssl x509 -req -in /tmp/apiserver.csr -CA /etc/kubernetes/ssl/ca.pem -CAkey /
 rm /tmp/openssl.cnf /tmp/apiserver.csr
 chmod 0600 /etc/kubernetes/ssl/*
 
-mkdir -p /etc/systemd/system/docker.service.d
-cat > /etc/systemd/system/docker.service.d/50-custom-opts.conf <<EOF
-[Service]
-Environment="DOCKER_OPTS=--log-level=warn --log-driver=journald --iptables=false"
-Environment="DOCKER_OPT_BIP=--bridge=cbr0"
-Environment="DOCKER_OPT_IPMASQ=--ip-masq=false"
-EOF
-
 mkdir -p /opt/bin
 curl -s https://storage.googleapis.com/release.kelproject.com/binaries/kubernetes/${K8S_VERSION}/kubelet > /opt/bin/kubelet
 chmod +x /opt/bin/kubelet

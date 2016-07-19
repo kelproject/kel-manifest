@@ -32,14 +32,6 @@ echo "${WORKER_KEY}" | base64 -d > /etc/kubernetes/ssl/worker-key.pem
 echo "${WORKER_CERT}" | base64 -d > /etc/kubernetes/ssl/worker.pem
 chmod 0600 /etc/kubernetes/ssl/*
 
-mkdir -p /etc/systemd/system/docker.service.d
-cat > /etc/systemd/system/docker.service.d/50-custom-opts.conf <<EOF
-[Service]
-Environment="DOCKER_OPTS=--log-level=warn --log-driver=journald --iptables=false"
-Environment="DOCKER_OPT_BIP=--bridge=cbr0"
-Environment="DOCKER_OPT_IPMASQ=--ip-masq=false"
-EOF
-
 mkdir -p /opt/bin
 
 curl -s https://storage.googleapis.com/release.kelproject.com/binaries/kubernetes/${K8S_VERSION}/kubelet > /opt/bin/kubelet
@@ -64,8 +56,7 @@ ExecStart=/opt/bin/kubelet \
   --tls-cert-file=/etc/kubernetes/ssl/worker.pem \
   --tls-private-key-file=/etc/kubernetes/ssl/worker-key.pem \
   --cadvisor-port=4194 \
-  --max-pods=${MAX_PODS} \
-  --configure-cbr0=true
+  --max-pods=${MAX_PODS}
 Restart=always
 RestartSec=10
 [Install]
