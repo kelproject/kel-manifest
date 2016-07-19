@@ -115,24 +115,42 @@ spec:
     securityContext:
       privileged: true
     volumeMounts:
-      - mountPath: /etc/ssl/certs
-        name: "ssl-certs"
-      - mountPath: /etc/kubernetes/worker-kubeconfig.yml
-        name: "kubeconfig"
-        readOnly: true
-      - mountPath: /etc/kubernetes/ssl
-        name: "etc-kube-ssl"
-        readOnly: true
+    - mountPath: /etc/ssl/certs
+      name: "ssl-certs"
+    - mountPath: /etc/kubernetes/worker-kubeconfig.yaml
+      name: "kubeconfig"
+      readOnly: true
+    - mountPath: /etc/kubernetes/ssl
+      name: "etc-kube-ssl"
+      readOnly: true
+    - mountPath: /sys/module/nf_conntrack/parameters
+      name: sys-hashsize
+      readOnly: false
+    - mountPath: /var/run/dbus
+      name: dbus
+      readOnly: false
+    - mountPath: /proc/sys/net
+      name: proc-sys-net
+      readOnly: false
   volumes:
-    - name: "ssl-certs"
-      hostPath:
-        path: "/usr/share/ca-certificates"
-    - name: "kubeconfig"
-      hostPath:
-        path: "/etc/kubernetes/worker-kubeconfig.yml"
-    - name: "etc-kube-ssl"
-      hostPath:
-        path: "/etc/kubernetes/ssl"
+  - name: "ssl-certs"
+    hostPath:
+      path: "/usr/share/ca-certificates"
+  - name: "kubeconfig"
+    hostPath:
+      path: "/etc/kubernetes/worker-kubeconfig.yaml"
+  - name: "etc-kube-ssl"
+    hostPath:
+      path: "/etc/kubernetes/ssl"
+  - hostPath:
+      path: /sys/module/nf_conntrack/parameters
+    name: sys-hashsize
+  - hostPath:
+      path: /var/run/dbus
+    name: dbus
+  - hostPath:
+      path: /proc/sys/net
+    name: proc-sys-net
 EOF
 
 cat > /etc/kubernetes/worker-kubeconfig.yml <<EOF

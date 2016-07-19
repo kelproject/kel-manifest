@@ -180,10 +180,28 @@ spec:
     - mountPath: /etc/ssl/certs
       name: ssl-certs-host
       readOnly: true
+    - mountPath: /sys/module/nf_conntrack/parameters
+      name: sys-hashsize
+      readOnly: false
+    - mountPath: /var/run/dbus
+      name: dbus
+      readOnly: false
+    - mountPath: /proc/sys/net
+      name: proc-sys-net
+      readOnly: false
   volumes:
   - hostPath:
       path: /usr/share/ca-certificates
     name: ssl-certs-host
+  - hostPath:
+      path: /sys/module/nf_conntrack/parameters
+    name: sys-hashsize
+  - hostPath:
+      path: /var/run/dbus
+    name: dbus
+  - hostPath:
+      path: /proc/sys/net
+    name: proc-sys-net
 EOF
 
 cat > /etc/kubernetes/manifests/kube-controller-manager.yml <<EOF
