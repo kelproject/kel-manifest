@@ -32,23 +32,7 @@ echo "${WORKER_KEY}" | base64 -d > /etc/kubernetes/ssl/worker-key.pem
 echo "${WORKER_CERT}" | base64 -d > /etc/kubernetes/ssl/worker.pem
 chmod 0600 /etc/kubernetes/ssl/*
 
-mkdir -p /etc/flannel
-cat > /etc/flannel/options.env <<EOF
-FLANNELD_IFACE=${ADVERTISE_IP}
-FLANNELD_ETCD_ENDPOINTS=${ETCD_ENDPOINTS}
-EOF
-mkdir -p /etc/systemd/system/flanneld.service.d
-cat > /etc/systemd/system/flanneld.service.d/40-ExecStartPre-symlink.conf <<EOF
-[Service]
-ExecStartPre=/usr/bin/ln -sf /etc/flannel/options.env /run/flannel/options.env
-EOF
-
 mkdir -p /etc/systemd/system/docker.service.d
-cat > /etc/systemd/system/docker.service.d/40-flannel.conf <<EOF
-[Unit]
-Requires=flanneld.service
-After=flanneld.service
-EOF
 cat > /etc/systemd/system/docker.service.d/50-custom-opts.conf <<EOF
 [Service]
 Environment="DOCKER_OPTS=--log-level=warn --log-driver=journald"
