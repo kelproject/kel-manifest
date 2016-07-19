@@ -52,6 +52,7 @@ ExecStart=/opt/bin/kubelet \
   --cluster-dns=${DNS_SERVICE_IP} \
   --cluster-domain=cluster.local \
   --container-runtime=rkt \
+  --rkt-path=/usr/bin/rkt \
   --kubeconfig=/etc/kubernetes/worker-kubeconfig.yml \
   --tls-cert-file=/etc/kubernetes/ssl/worker.pem \
   --tls-private-key-file=/etc/kubernetes/ssl/worker-key.pem \

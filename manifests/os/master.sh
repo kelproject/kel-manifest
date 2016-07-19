@@ -67,6 +67,7 @@ ExecStart=/opt/bin/kubelet \
   --cluster-dns=${DNS_SERVICE_IP} \
   --cluster-domain=cluster.local \
   --container-runtime=rkt \
+  --rkt-path=/usr/bin/rkt \
   --cadvisor-port=4194
 Restart=always
 RestartSec=10
