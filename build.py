@@ -15,8 +15,8 @@ def get_release():
     return {
         "os": {
             "type": "coreos",
-            "channel": "stable",
-            "version": "1068.8.0",
+            "channel": "alpha",
+            "version": "1109.1.0",
             "manifests": {
                 "etcd": load_manifest("os/etcd.sh"),
                 "master": load_manifest("os/master.sh"),
