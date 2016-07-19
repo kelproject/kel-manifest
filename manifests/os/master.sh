@@ -51,6 +51,17 @@ openssl x509 -req -in /tmp/apiserver.csr -CA /etc/kubernetes/ssl/ca.pem -CAkey /
 rm /tmp/openssl.cnf /tmp/apiserver.csr
 chmod 0600 /etc/kubernetes/ssl/*
 
+mkdir -p /etc/flannel
+cat > /etc/flannel/options.env <<EOF
+FLANNELD_IFACE=${ADVERTISE_IP}
+FLANNELD_ETCD_ENDPOINTS=${ETCD_ENDPOINTS}
+EOF
+mkdir -p /etc/systemd/system/flanneld.service.d
+cat > /etc/systemd/system/flanneld.service.d/40-ExecStartPre-symlink.conf <<EOF
+[Service]
+ExecStartPre=/usr/bin/ln -sf /etc/flannel/options.env /run/flannel/options.env
+EOF
+
 mkdir -p /opt/bin
 curl -s https://storage.googleapis.com/release.kelproject.com/binaries/kubernetes/${K8S_VERSION}/kubelet > /opt/bin/kubelet
 chmod +x /opt/bin/kubelet
@@ -79,7 +90,10 @@ mkdir -p /etc/rkt/net.d
 cat > /etc/rkt/net.d/k8s_cluster.conf <<EOF
 {
     "name": "rkt.kubernetes.io",
-    "type": "flannel"
+    "type": "flannel",
+    "delegate": {
+        "isDefaultGateway": true
+    }
 }
 EOF
 
@@ -190,8 +204,6 @@ spec:
     - --root-ca-file=/etc/kubernetes/ssl/ca.pem
     - --leader-elect=true
     - --cloud-provider=gce
-    - --cluster-cidr=${POD_NETWORK}
-    - --allocate-node-cidrs=true
     livenessProbe:
       httpGet:
         host: 127.0.0.1
@@ -242,6 +254,15 @@ spec:
 EOF
 
 systemctl daemon-reload
+
+# randomly select an etcd url from the comma-separated list
+{% raw %}ETCD_URL_ARRAY=(${ETCD_ENDPOINTS//,/ })
+ETCD_URL=${ETCD_URL_ARRAY[$RANDOM % ${#ETCD_URL_ARRAY[@]}]}
+until curl -X PUT -d "value={\"Network\":\"${POD_NETWORK}\", \"Backend\": {\"Type\": \"gce\"}}" "${ETCD_URL}/v2/keys/coreos.com/network/config"; do
+    echo "Waiting for etcd to set flannel config..."
+    sleep 3
+    ETCD_URL=${ETCD_URL_ARRAY[$RANDOM % ${#ETCD_URL_ARRAY[@]}]}
+done{% endraw %}
 
 systemctl start rkt-api
 systemctl start kubelet
