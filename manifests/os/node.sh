@@ -35,7 +35,9 @@ chmod 0600 /etc/kubernetes/ssl/*
 mkdir -p /etc/systemd/system/docker.service.d
 cat > /etc/systemd/system/docker.service.d/50-custom-opts.conf <<EOF
 [Service]
-Environment="DOCKER_OPTS=--log-level=warn --log-driver=journald --bridge=cbr0"
+Environment="DOCKER_OPTS=--log-level=warn --log-driver=journald --iptables=false"
+Environment="DOCKER_OPT_BIP=--bridge=cbr0"
+Environment="DOCKER_OPT_IPMASQ=--ip-masq=false"
 EOF
 
 mkdir -p /opt/bin
