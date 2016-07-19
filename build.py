@@ -24,7 +24,7 @@ def get_release():
             },
         },
         "kubernetes": {
-            "version": "v1.2.4_kel.1",
+            "version": "v1.3.2_kel.1",
             "images": {
                 "kube-dns": {
                     "etcd": "gcr.io/google_containers/etcd-amd64:2.2.1",
