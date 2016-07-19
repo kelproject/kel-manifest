@@ -8,7 +8,7 @@ metadata:
   name: kube-dns
   namespace: kube-system
 spec:
-  clusterIP: 10.3.0.10
+  clusterIP: "{{ cluster.config["layer-0"]["dns-service-ip"] }}"
   ports:
     - name: dns
       port: 53
@@ -28,7 +28,7 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: kube-dns
-    version: v11
+    version: v18
     kubernetes.io/cluster-service: "true"
 spec:
   replicas: 1
@@ -39,11 +39,11 @@ spec:
     metadata:
       labels:
         k8s-app: kube-dns
-        version: v11
+        version: v18
     spec:
       containers:
-        - name: etcd
-          image: {{ image.etcd }}
+        - name: kubedns
+          image: {{ image.kubedns }}
           imagePullPolicy: IfNotPresent
           resources:
             # TODO: Set memory limits when we've profiled the container for large
@@ -52,38 +52,10 @@ spec:
             # "burstable" category so the kubelet doesn't backoff from restarting it.
             limits:
               cpu: 100m
-              memory: 500Mi
-            requests:
-              cpu: 100m
-              memory: 50Mi
-          command:
-            - /usr/local/bin/etcd
-            - -data-dir
-            - /var/etcd/data
-            - -listen-client-urls
-            - http://127.0.0.1:2379,http://127.0.0.1:4001
-            - -advertise-client-urls
-            - http://127.0.0.1:2379,http://127.0.0.1:4001
-            - -initial-cluster-token
-            - skydns-etcd
-          volumeMounts:
-            - name: etcd-storage
-              mountPath: /var/etcd/data
-        - name: kube2sky
-          image: {{ image.kube2sky }}
-          imagePullPolicy: IfNotPresent
-          resources:
-            # TODO: Set memory limits when we've profiled the container for large
-            # clusters, then set request = limit to keep this container in
-            # guaranteed class. Currently, this container falls into the
-            # "burstable" category so the kubelet doesn't backoff from restarting it.
-            limits:
-              cpu: 100m
-              # Kube2sky watches all pods.
               memory: 200Mi
             requests:
               cpu: 100m
-              memory: 50Mi
+              memory: 100Mi
           livenessProbe:
             httpGet:
               path: /healthz
@@ -103,28 +75,22 @@ spec:
             initialDelaySeconds: 30
             timeoutSeconds: 5
           args:
-            # command = "/kube2sky"
+            # command = "/kube-dns"
             - --domain=cluster.local
-        - name: skydns
-          image: {{ image.skydns }}
-          imagePullPolicy: IfNotPresent
-          resources:
-            # TODO: Set memory limits when we've profiled the container for large
-            # clusters, then set request = limit to keep this container in
-            # guaranteed class. Currently, this container falls into the
-            # "burstable" category so the kubelet doesn't backoff from restarting it.
-            limits:
-              cpu: 100m
-              memory: 200Mi
-            requests:
-              cpu: 100m
-              memory: 50Mi
+            - --dns-port=10053
+          ports:
+            - containerPort: 10053
+              name: dns-local
+              protocol: UDP
+            - containerPort: 10053
+              name: dns-tcp-local
+              protocol: TCP
+        - name: dnsmasq
+          image: {{ image.dnsmasq }}
           args:
-            # command = "/skydns"
-            - -machines=http://127.0.0.1:4001
-            - -addr=0.0.0.0:53
-            - -ns-rotate=false
-            - -domain=cluster.local.
+            - --cache-size=1000
+            - --no-resolv
+            - --server=127.0.0.1#10053
           ports:
             - containerPort: 53
               name: dns
@@ -146,12 +112,10 @@ spec:
           args:
             - -cmd=nslookup kubernetes.default.svc.cluster.local localhost >/dev/null
             - -port=8080
+            - -quiet
           ports:
             - containerPort: 8080
               protocol: TCP
       dnsPolicy: Default
-      volumes:
-        - emptyDir: {}
-          name: etcd-storage
       nodeSelector:
         kelproject.com/node-kind: node-1x

@@ -16,7 +16,7 @@ def get_release():
         "os": {
             "type": "coreos",
             "channel": "stable",
-            "version": "899.17.0",
+            "version": "1068.8.0",
             "manifests": {
                 "etcd": load_manifest("os/etcd.sh"),
                 "master": load_manifest("os/master.sh"),
@@ -24,12 +24,11 @@ def get_release():
             },
         },
         "kubernetes": {
-            "version": "v1.2.4_kel.1",
+            "version": "v1.3.2_kel.1",
             "images": {
                 "kube-dns": {
-                    "etcd": "gcr.io/google_containers/etcd-amd64:2.2.1",
-                    "kube2sky": "gcr.io/google_containers/kube2sky:1.14",
-                    "skydns": "gcr.io/google_containers/skydns:2015-10-13-8c72f8c",
+                    "kubedns": "gcr.io/google_containers/kubedns-amd64:1.6",
+                    "dnsmasq": "gcr.io/google_containers/kube-dnsmasq-amd64:1.3",
                 }
             },
             "manifests": {
