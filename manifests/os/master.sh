@@ -74,8 +74,7 @@ ExecStart=/opt/bin/kubelet \
   --config=/etc/kubernetes/manifests \
   --cluster-dns=${DNS_SERVICE_IP} \
   --cluster-domain=cluster.local \
-  --cadvisor-port=4194 \
-  --configure-cbr0=true
+  --cadvisor-port=4194
 Restart=always
 RestartSec=10
 [Install]
