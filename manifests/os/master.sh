@@ -54,7 +54,7 @@ chmod 0600 /etc/kubernetes/ssl/*
 mkdir -p /etc/systemd/system/docker.service.d
 cat > /etc/systemd/system/docker.service.d/50-custom-opts.conf <<EOF
 [Service]
-Environment="DOCKER_OPTS=--log-level=warn --log-driver=journald"
+Environment="DOCKER_OPTS=--log-level=warn --log-driver=journald --bridge=cbr0"
 EOF
 
 mkdir -p /opt/bin
@@ -72,7 +72,8 @@ ExecStart=/opt/bin/kubelet \
   --config=/etc/kubernetes/manifests \
   --cluster-dns=${DNS_SERVICE_IP} \
   --cluster-domain=cluster.local \
-  --cadvisor-port=4194
+  --cadvisor-port=4194 \
+  --configure-cbr0=true
 Restart=always
 RestartSec=10
 [Install]

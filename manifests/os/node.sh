@@ -35,7 +35,7 @@ chmod 0600 /etc/kubernetes/ssl/*
 mkdir -p /etc/systemd/system/docker.service.d
 cat > /etc/systemd/system/docker.service.d/50-custom-opts.conf <<EOF
 [Service]
-Environment="DOCKER_OPTS=--log-level=warn --log-driver=journald"
+Environment="DOCKER_OPTS=--log-level=warn --log-driver=journald --bridge=cbr0"
 EOF
 
 mkdir -p /opt/bin
@@ -61,7 +61,8 @@ ExecStart=/opt/bin/kubelet \
   --tls-cert-file=/etc/kubernetes/ssl/worker.pem \
   --tls-private-key-file=/etc/kubernetes/ssl/worker-key.pem \
   --cadvisor-port=4194 \
-  --max-pods=${MAX_PODS}
+  --max-pods=${MAX_PODS} \
+  --configure-cbr0=true
 Restart=always
 RestartSec=10
 [Install]
