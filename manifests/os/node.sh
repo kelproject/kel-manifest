@@ -69,6 +69,7 @@ ExecStart=/opt/bin/kubelet \
   --api-servers=https://${MASTER_IP} \
   --register-node=true \
   --cloud-provider=gce \
+  --experimental-flannel-overlay=true \
   --allow-privileged=true \
   --config=/etc/kubernetes/manifests \
   --cluster-dns=${DNS_SERVICE_IP} \
