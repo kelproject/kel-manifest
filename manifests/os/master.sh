@@ -67,8 +67,7 @@ apiVersion: kubeadm.k8s.io/v1alpha1
 kind: MasterConfiguration
 etcd:
   endpoints:
-  {% for endpoint in cluster.resources.etcd.get_initial_endpoints() -%}
-  - {{ endpoint }}
+  {% for endpoint in cluster.resources.etcd.get_initial_endpoints() %}  - {{ endpoint }}
 {% endfor %}
 token: ${NODE_TOKEN}
 nodeName: $(hostname | cut -f1 -d.)
