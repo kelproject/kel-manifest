@@ -23,19 +23,31 @@ mkdir -p /mnt/etcd-pd
 mkdir -m 700 -p /mnt/etcd-pd/var/etcd/data.etcd
 chown -R etcd:etcd /mnt/etcd-pd/var/etcd
 
-mkdir -p /etc/systemd/system/etcd2.service.d
-cat > /etc/systemd/system/etcd2.service.d/40-listen-address.conf <<EOF
+cat > /tmp/20-cl-etcd-member.conf <<EOF
 [Service]
-Environment=ETCD_NAME=${ETCD_NODE_NAME}
-Environment=ETCD_DATA_DIR=/mnt/etcd-pd/var/etcd/data.etcd
-Environment=ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
-Environment=ETCD_ADVERTISE_CLIENT_URLS=http://${ETCD_NODE_DNS}:2379
-Environment=ETCD_INITIAL_CLUSTER=${ETCD_INITIAL_NODES}
-Environment=ETCD_INITIAL_CLUSTER_STATE=new
-Environment=ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380,http://localhost:7001
-Environment=ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${ETCD_NODE_DNS}:2380
+Environment="ETCD_DATA_DIR=/mnt/etcd-pd/var/etcd/data.etcd"
+Environment="ETCD_SSL_DIR=/etc/ssl/certs"
+Environment="ETCD_OPTS=--name ${ETCD_NODE_NAME} \
+  --listen-client-urls http://0.0.0.0:2379 \
+  --advertise-client-urls http://${ETCD_NODE_DNS}:2379 \
+  --listen-peer-urls http://0.0.0.0:2380 \
+  --initial-advertise-peer-urls http://${ETCD_NODE_DNS}:2380 \
+  --initial-cluster s1=${ETCD_INITIAL_NODES} \
+  --initial-cluster-token mytoken \
+  --initial-cluster-state new \
+  --client-cert-auth \
+  --trusted-ca-file /etc/ssl/certs/etcd-root-ca.pem \
+  --cert-file /etc/ssl/certs/s1.pem \
+  --key-file /etc/ssl/certs/s1-key.pem \
+  --peer-client-cert-auth \
+  --peer-trusted-ca-file /etc/ssl/certs/etcd-root-ca.pem \
+  --peer-cert-file /etc/ssl/certs/s1.pem \
+  --peer-key-file /etc/ssl/certs/s1-key.pem \
+  --auto-compaction-retention 1"
 EOF
-systemctl start etcd2
-systemctl enable etcd2
+mv /tmp/20-cl-etcd-member.conf /etc/systemd/system/etcd-member.service.d/20-cl-etcd-member.conf
+
+systemctl daemon-reload
+systemctl enable --now etcd-member.service
 
 touch /var/lib/.bootstrapped

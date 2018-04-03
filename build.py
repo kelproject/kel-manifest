@@ -16,7 +16,7 @@ def get_release():
         "os": {
             "type": "coreos",
             "channel": "stable",
-            "version": "1068.9.0",
+            "version": "1688.4.0",
             "manifests": {
                 "etcd": load_manifest("os/etcd.sh"),
                 "master": load_manifest("os/master.sh"),
@@ -24,7 +24,7 @@ def get_release():
             },
         },
         "kubernetes": {
-            "version": "v1.3.4_kel.2",
+            "version": "v1.10.0",
             "images": {
                 "kube-dns": {
                     "kubedns": "gcr.io/google_containers/kubedns-amd64:1.6",
