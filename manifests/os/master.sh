@@ -11,7 +11,7 @@ K8S_VERSION="{{ cluster.config.release.kubernetes.version }}"
 POD_NETWORK="{{ cluster.config["layer-0"]["pod-network"] }}"
 SERVICE_IP_RANGE="{{ cluster.config["layer-0"]["service-network"] }}"
 DNS_SERVICE_IP="{{ cluster.config["layer-0"]["dns-service-ip"] }}"
-NODE_TOKEN="{{ cluster.config["layer-0"]["node-token"] }}"
+NODE_TOKEN="{{ cluster.node_token }}"
 
 systemctl stop update-engine.service
 systemctl mask update-engine.service

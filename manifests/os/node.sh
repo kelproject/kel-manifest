@@ -10,7 +10,7 @@ fi
 K8S_VERSION="{{ cluster.config.release.kubernetes.version }}"
 MASTER_IP="{{ cluster.master_ip }}"
 DNS_SERVICE_IP="{{ cluster.config["layer-0"]["dns-service-ip"] }}"
-NODE_TOKEN="{{ cluster.config["layer-0"]["node-token"] }}"
+NODE_TOKEN="{{ cluster.node_token }}"
 NODE_KIND="{{ config["name"] }}"
 MAX_PODS="{{ config["max-pods"] }}"
 
